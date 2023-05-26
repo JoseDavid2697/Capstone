@@ -13,26 +13,79 @@ screen_height = 1000
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
+font_score = pygame.font.SysFont('Bauhaus 93', 30)
+
 #define game variables
 tile_size = 50
 main_menu = True
 level = 1
 jump_counter = 0
 game_over = 0
+score = 0
+background = 'img/sky.png'
+last_level = False
+
+white = (255, 255, 255)
 
 #load images
 sun_img = pygame.image.load('img/sun.png')
-bg_img = pygame.image.load('img/sky.png')
+bg_img = pygame.image.load(background)
 start_img = pygame.image.load('img/start_btn.png')
 exit_img = pygame.image.load('img/exit_btn.png')
+post_img = pygame.image.load('img/post_btn.png')
+
+def set_level():
+	global bg_img
+	global background
+	global last_level
+	data = [
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	]
+
+	background = 'img/astrix.png'
+	bg_img = pygame.image.load(background)
+	last_level = True
+	return data
+
+
+def draw_text(text, font, text_col, x, y):
+	img = font.render(text, True, text_col)
+	screen.blit(img, (x, y))
 
 #function to reset level
 def reset_level(level):
 	player.reset(100, screen_height - 130)
 	exit_group.empty()
-	pickle_in = open(f'level{level}_data', 'rb')
-	world_data = pickle.load(pickle_in)
-	world = World(world_data)
+	if level == 3:
+		coin_group.empty()
+		world_data = world_data = set_level()
+		world = World(world_data)
+	else:
+		pickle_in = open(f'level{level}_data', 'rb')
+		world_data = pickle.load(pickle_in)
+		world = World(world_data)
+
+	if level == 3:
+		score = 0
 
 	return world
 
@@ -97,7 +150,8 @@ class Player():
 		if game_over == 0:
 			#get keypresses
 			key = pygame.key.get_pressed()
-			if jump_counter < 2:	
+			if jump_counter < 2:
+			#if True:	
 				if key[pygame.K_SPACE] and self.jumped == False:
 					self.vel_y = -15
 					self.jumped = True
@@ -135,8 +189,8 @@ class Player():
 
 			#add gravity
 			self.vel_y += 1
-			if self.vel_y > 10:
-				self.vel_y = 10
+			#if self.vel_y > 10:
+			#	self.vel_y = 10
 			dy += self.vel_y
 
 			#check for collision
@@ -155,11 +209,17 @@ class Player():
 						dy = tile[1].top - self.rect.bottom
 						self.vel_y = 0
 						jump_counter = 0
+					
 
 			#check collision with exit
 			if pygame.sprite.spritecollide(self, exit_group, False):
 				game_over = 1
 
+			#check collision with furnace
+			if pygame.sprite.spritecollide(self, furnace_group, False):
+				if post_button.draw():
+					#Make post method
+					print('Collide with furnance')
 
 			#update player coordinates
 			self.rect.x += dx
@@ -171,7 +231,6 @@ class Player():
 
 		#draw player onto screen
 		screen.blit(self.image, self.rect)
-		pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
 		return game_over
 	
@@ -226,16 +285,30 @@ class World():
 					img_rect.y = row_count * tile_size
 					tile = (img, img_rect)
 					self.tile_list.append(tile)
+				if tile == 7:
+					coin = Coin(col_count * tile_size + (tile_size // 2), row_count * tile_size + (tile_size // 2))
+					coin_group.add(coin)
 				if tile == 8:
 					exit = Exit(col_count * tile_size, row_count * tile_size - (tile_size // 2))
 					exit_group.add(exit)
+				if tile == 10:
+					furnace = Furnace(col_count * tile_size, row_count * tile_size)
+					furnace_group.add(furnace)
 				col_count += 1
 			row_count += 1
 
 	def draw(self):
 		for tile in self.tile_list:
 			screen.blit(tile[0], tile[1])
-			pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
+
+
+class Coin(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		img = pygame.image.load('img/coin.png')
+		self.image = pygame.transform.scale(img, (tile_size // 2, tile_size // 2))
+		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 
 
 class Exit(pygame.sprite.Sprite):
@@ -247,14 +320,25 @@ class Exit(pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 
+class Furnace(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		img = pygame.image.load('img/furnace.png')
+		self.image = pygame.transform.scale(img, (int(tile_size * 4), int(tile_size * 4)))
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+
 player = Player(100, screen_height - 130)
 
 exit_group = pygame.sprite.Group()
+coin_group = pygame.sprite.Group()
+furnace_group = pygame.sprite.Group()
 
 #create buttons
 start_button = Button(screen_width // 2 - 350, screen_height // 2, start_img)
 exit_button = Button(screen_width // 2 + 150, screen_height // 2, exit_img)
-
+post_button = Button(screen_width // 2 + 150, screen_height // 2, post_img)
 #load in level data and create world
 pickle_in = open(f'level{level}_data', 'rb')
 world_data = pickle.load(pickle_in)
@@ -265,8 +349,12 @@ while run:
 
 	clock.tick(fps)
 
-	screen.blit(bg_img, (0, 0))
-	screen.blit(sun_img, (100, 100))
+	if last_level == False:
+		screen.blit(bg_img, (0, 0))
+		screen.blit(sun_img, (100, 100))
+	else: 
+		screen.blit(bg_img, (0, 0))
+
 
 	if main_menu == True:
 		if exit_button.draw():
@@ -276,7 +364,14 @@ while run:
 	else:
 		world.draw()
 
+		if pygame.sprite.spritecollide(player, coin_group, True):
+			score += 1
+
+		draw_text('Gold: ' + str(score), font_score, white, tile_size - 10, 10)
+
 		exit_group.draw(screen)
+		coin_group.draw(screen)
+		furnace_group.draw(screen)
 		game_over = player.update(game_over)
 
 		#if player has completed the level
