@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import pickle
+import requests
 
 pygame.init()
 
@@ -235,8 +236,11 @@ class Player():
 			#check collision with furnace
 			if pygame.sprite.spritecollide(self, furnace_group, False):
 				if post_button.draw():
-					#Make post method
-					print('Click')
+					#Make post 
+					url = 'https://www.w3schools.com/python/demopage.php'
+					myobj = {'owner': player_img}
+					x = requests.post(url, json = myobj)
+					print(x)
 
 			#update player coordinates
 			self.rect.x += dx
@@ -399,7 +403,7 @@ while run:
 			#main_menu = False
 		if ed_button.draw():
 			main_menu = False
-			player.player_img = 'ed'
+			player_img = 'ed'
 		if juan_button.draw():
 			main_menu = False
 			player_img = 'guy'
