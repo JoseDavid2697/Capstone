@@ -237,8 +237,11 @@ class Player():
 			if pygame.sprite.spritecollide(self, furnace_group, False):
 				if post_button.draw():
 					#Make post 
-					url = 'https://www.w3schools.com/python/demopage.php'
-					myobj = {'owner': player_img}
+					url = 'http://localhost:8080/'
+					myobj = {'owner': player_img,
+	       					 'gold': score, 
+		                     'silver': score_silver
+							}
 					x = requests.post(url, json = myobj)
 					print(x)
 
