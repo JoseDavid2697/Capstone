@@ -1,7 +1,13 @@
 import pygame
 from pygame.locals import *
+import os
 import pickle
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 
 pygame.init()
 
@@ -26,8 +32,9 @@ score = 0
 score_silver = 0
 background = 'img/sky.png'
 last_level = False
-player_img = 'kirby'
+player_img = 'kirb'
 white = (255, 255, 255)
+requested = False
 
 #load images
 sun_img = pygame.image.load('img/sun.png')
@@ -35,6 +42,7 @@ bg_img = pygame.image.load(background)
 start_img = pygame.image.load('img/start_btn.png')
 exit_img = pygame.image.load('img/exit_btn.png')
 post_img = pygame.image.load('img/post_btn.png')
+success_img = pygame.image.load('img/success_btn.png')
 ed_img = pygame.image.load('img/ed_btn.png')
 juan_img = pygame.image.load('img/juan_btn.png')
 ana_img = pygame.image.load('img/ana_btn.png')
@@ -90,6 +98,8 @@ def draw_text_silver(text, font, text_col, x, y):
 def reset_level(level):
 	player.reset(100, screen_height - 130)
 	exit_group.empty()
+	silver_group.empty()
+	coin_group.empty()
 	if level == 3:
 		coin_group.empty()
 		silver_group.empty()
@@ -160,6 +170,7 @@ class Player():
 		self.direction = 0
 
 	def update(self, game_over):
+		global requested
 		global jump_counter
 		dx = 0
 		dy = 0
@@ -235,15 +246,21 @@ class Player():
 
 			#check collision with furnace
 			if pygame.sprite.spritecollide(self, furnace_group, False):
-				if post_button.draw():
+				if post_button.draw() and requested == False:
 					#Make post 
-					url = 'http://localhost:8080/'
-					myobj = {'owner': player_img,
+					IP = os.getenv('IP')
+					#url = 'http://localhost:8080/'
+					url = IP
+					myobj = {'owner': player_img.capitalize(),
 	       					 'gold': score, 
 		                     'silver': score_silver
 							}
 					x = requests.post(url, json = myobj)
-					print(x)
+					if x.status_code == 200:
+						post_button.image = success_img
+						requested = True
+			
+			
 
 			#update player coordinates
 			self.rect.x += dx
@@ -374,6 +391,7 @@ furnace_group = pygame.sprite.Group()
 #start_button = Button(screen_width // 2 - 350, screen_height // 2, start_img)
 exit_button = Button(screen_width // 2 + 150, screen_height // 2 + 50, exit_img)
 post_button = Button(screen_width // 2 - 150, screen_height // 2, post_img)
+success_button = Button(screen_width // 2 - 150, screen_height // 2, success_img)
 ed_button = Button(screen_width // 2 - 350, screen_height // 100 + 700, ed_img)
 juan_button = Button(screen_width // 2 - 250, screen_height // 100 + 700, juan_img)
 ana_button = Button(screen_width // 2 - 150, screen_height // 100 + 700, ana_img)
@@ -409,7 +427,7 @@ while run:
 			player_img = 'ed'
 		if juan_button.draw():
 			main_menu = False
-			player_img = 'guy'
+			player_img = 'juan'
 		if ana_button.draw():
 			main_menu = False
 			player.player_img = 'ana'
@@ -430,7 +448,7 @@ while run:
 			player.player_img = 'johan'
 		if kirb_button.draw():
 			main_menu = False
-			player_img = 'kirby'	
+			player_img = 'kirb'	
 		player = Player(100, screen_height - 130, player_img)
 	else:
 		world.draw()
